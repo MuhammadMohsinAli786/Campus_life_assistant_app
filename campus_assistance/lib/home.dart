@@ -1,0 +1,223 @@
+import 'package:campus_assistance/screens/bunk.dart';
+import 'package:campus_assistance/screens/desktophome.dart';
+import 'package:campus_assistance/screens/profile.dart';
+import 'package:campus_assistance/screens/result.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import './screens/home.dart';
+
+class Main extends StatefulWidget {
+  @override
+  _MainState createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  int selected = 0;
+  List<Widget> screensDesktop = [];
+  List<Widget> screensMobile = [];
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    screensDesktop.add(DesktopHome());
+    screensDesktop.add(Bunk());
+    screensDesktop.add(Result());
+    screensMobile.add(Home());
+    screensMobile.add(Bunk());
+    screensMobile.add(Result());
+  }
+
+  void _launchURL(String id) async {
+    Map<String, String> urls = {
+      'insta': 'https://instagram.com/tusharupadhyay_',
+      'github': 'https://github.com/tushar-upadhyay',
+      'mail': 'mailto:tusharrockpg@gmail.com',
+      'source': 'https://github.com/tushar-upadhyay/Flutter_college_app'
+    };
+    String url = urls[id] ?? '';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+    if (w < 500) {
+      return Scaffold(
+        drawer: drawer(),
+        bottomNavigationBar: BottomNavigationBar(
+          elevation: 8.0,
+          onTap: (e) => setState(() => _currentIndex = e),
+          currentIndex: _currentIndex,
+          items: const [
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.home),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.bullseye),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: '',
+            )
+          ],
+        ),
+        body: screensMobile[_currentIndex],
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        actions: [
+          menuItem('Home', 0),
+          menuItem('Bunk Manager', 1),
+          Padding(
+            padding: const EdgeInsets.only(right: 100),
+            child: menuItem('RGPV Results', 2),
+          ),
+        ],
+        title: Text('LNCT Attendance'),
+      ),
+      drawer: drawer(),
+      body: screensDesktop[selected],
+    );
+  }
+
+  Widget menuItem(String text, int id) {
+    return TextButton(
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: id == selected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      onPressed: () {
+        setState(() {
+          selected = id;
+        });
+      },
+    );
+  }
+
+  Widget drawer() {
+    return Drawer(
+      elevation: 0.0,
+      child: SafeArea(
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        "assets/user.png",
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  padding: EdgeInsets.all(9),
+                ),
+                child: Text("Profile"),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => Profile()),
+                  );
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(
+                  thickness: 1.8,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _launchURL('mail');
+                            },
+                            child: FaIcon(
+                              Icons.mail_outline,
+                              size: 32,
+                              color: Colors.deepOrange,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _launchURL('source');
+                            },
+                            child: FaIcon(
+                              FontAwesomeIcons.code,
+                              size: 32,
+                              color: Colors.black,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _launchURL('insta');
+                            },
+                            child: FaIcon(
+                              FontAwesomeIcons.instagram,
+                              size: 32,
+                              color: Colors.red,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _launchURL('github');
+                            },
+                            child: FaIcon(
+                              FontAwesomeIcons.github,
+                              size: 32,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 5.0),
+                    child: Text('Made with ❤ By Tushar'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
